@@ -5,10 +5,28 @@ outline:
 - multivariate joint entropy, gaussian estimator
 
 """
+import typing
 import numpy as np
 
 
 # MULTIVARIATE JOINT ENTROY
+
+def discrete_entropy(data: typing.Iterable) -> float:
+    """
+    calulate discrete entropy of data
+
+    inputs:
+        - `data`: iterable, containing discrete values or symbols
+    outputs:
+        - `entropy`: float, entropy value in nats.
+    """
+    if not isinstance(data, np.ndarray):
+        data = np.array(data)
+    _, counts = np.unique(data, axis=0, return_counts=True)
+    probabilities = counts / np.sum(counts)
+    entropy = - np.sum(np.dot(probabilities, np.log(probabilities)))
+    return entropy
+
 
 def cov_det(data: np.ndarray) -> float:
     """
@@ -55,7 +73,33 @@ def gaussian_joint_entropy(data: np.ndarray) -> float:
     return joint_entropy
 
 
-# TRANSFER ENTROPY
+def discrete_joint_entropy(
+        data: np.ndarray,
+        ) -> float:
+    """
+    calculate discrete, multivariate joint entropy
+
+    inputs:
+        - `data`: numpy array, or list of arrays,
+        rows correspond to dimensions.
+    outputs:
+        - `joint_entropy`: float, entropy in nats
+    """
+    _, counts = np.unique(data, axis=0, return_counts=True)
+    probabilities = counts / np.sum(counts)
+    joint_entropy = discrete_entropy(probabilities)
+    return joint_entropy
+
+
+# dictionary of joint entropy methods
+joint_entropy_methods = {
+    'gaussian': gaussian_joint_entropy,
+    'discrete': discrete_joint_entropy,
+}
+
+
+# INFORMATION DYNAMICS
+
 def shift_array(array: np.ndarray, shifts: int) -> np.ndarray:
     """
     inputs:
@@ -81,7 +125,7 @@ def shift_array(array: np.ndarray, shifts: int) -> np.ndarray:
     return result
 
 
-def entropy_rate(x: np.ndarray, k: int = None) -> float:
+def entropy_rate(x: np.ndarray, k: int = None, estimator='discrete') -> float:
     """
     Computes the mutual information of 
 
@@ -99,8 +143,9 @@ def entropy_rate(x: np.ndarray, k: int = None) -> float:
     # filter columns containing nan
     x_k_0 = x_k_0[:, ~np.isnan(x_k_0).any(axis=0)]
     x_k_1 = x_k_1[:, ~np.isnan(x_k_1).any(axis=0)]
-    joint_0 = gaussian_joint_entropy(x_k_0)
-    joint_1 = gaussian_joint_entropy(x_k_1)
+    joint_entropy_estimator = joint_entropy_methods[estimator]
+    joint_0 = joint_entropy_estimator(x_k_0)
+    joint_1 = joint_entropy_estimator(x_k_1)
     er = joint_1 - joint_0
     return er
 

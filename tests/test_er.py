@@ -4,7 +4,7 @@ test entropy rate computation
 import os
 import unittest
 from preprocessing.paths import pointwise_features_path, jarLocation
-from infotheory import *
+from scripts.algorithms.infotheory import *
 import jpype
 
 

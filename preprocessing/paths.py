@@ -47,6 +47,8 @@ peptide_data_path = os.path.join(data_dir, peptide_data_filename)
 protein_data_path = os.path.join(data_dir, protein_data_filename)
 pointwise_features_path = os.path.join(etl_dir, 'clinical_pointwise.csv')
 pattern_features_path = os.path.join(etl_dir, 'clinical_pattern.csv')
+markov_features_path = os.path.join(etl_dir, 'clinical_markov.csv')
+
 
 if __name__ == '__main__':
     assert os.path.isdir(data_dir), \
